@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Bingo Draugreries</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 100px);
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .cell {
+      background: #222;
+      border: 2px solid #444;
+      padding: 10px;
+      height: 100px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      cursor: pointer;
+      border-radius: 10px;
+
+      transition: 0.2s;
+    }
+
+    .cell:hover {
+      background: #333;
+    }
+
+    .checked {
+      background: #00aa55;
+    }
+    .selected {
+      outline: 3px solid #00aa55;
+}
+ #termsList {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+.term-item {
+  background: #2a2a2a;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+  text-align: center;
+}
+
+.term-item:hover {
+  background: #3a3a3a;
+  transform: scale(1.03);
+}
+
+@media (max-width: 500px) {
+  #termsList {
+    grid-template-columns: 1fr;
+  }
+}
+
+  </style>
+</head>
+
+<body>
+
+  <h1>Bingo Draugreries</h1>
+
+  <select id="sizeSelect">
+  <option value="4">4 x 4</option>
+  <option value="5" selected>5 x 5</option>
+  <option value="6">6 x 6</option>
+</select>
+
+<button onclick="createGrid()">
+  Générer grille aléatoire
+</button>
+
+<button onclick="createEmptyGrid()">
+  Créer grille vide (manuel)
+</button>
+
+<button onclick="startGame()">
+  Démarrer la partie
+</button>
+
+<br><br>
+
+  <input
+  type="text"
+  id="newTerm"
+  placeholder="Ajouter un terme"
+/>
+
+<button onclick="addTerm()">
+  Ajouter
+</button>
+
+<br><br>
+
+<button onclick="removeTerms('Sophie')">
+  Remove Sophie
+</button>
+
+<button onclick="removeTerms('Armand')">
+  Remove Armand
+</button>
+
+<button onclick="removeTerms('Antoine')">
+  Remove Antoine
+</button>
+
+<button onclick="removeTerms('Axel')">
+  Remove Axel
+</button>
+
+<button onclick="removeTerms('Carla')">
+  Remove Carla
+</button>
+
+<button onclick="removeTerms('Coda')">
+  Remove Coda
+</button>
+
+<button onclick="removeTerms('Elie')">
+  Remove Elie
+</button>
+
+<button onclick="removeTerms('Clement')">
+  Remove Clement
+</button>
+
+  <div class="grid" id="grid"></div>
+
+  <br><br>
+
+  <div id="termsList"></div>
+
+  <script>
+  
+  let gameMode = "edit"; // "edit" ou "play"
+
+  function displayTerms() {
+
+    const termsList =
+      document.getElementById("termsList");
+
+    termsList.innerHTML = "";
+
+    terms.forEach(term => {
+
+      const div =
+        document.createElement("div");
+
+      div.classList.add("term-item");
+
+      div.textContent = term;
+
+      div.addEventListener("click", () => {
+
+        if (!selectedCell) return;
+
+        selectedCell.textContent = term;
+
+        selectedCell.classList.remove("selected");
+
+        selectedCell = null;
+      });
+
+      termsList.appendChild(div);
+    });
+  }
+
+  let selectedCell = null;
+
+  let terms = [
+"Armand aigri",
+"Axel aigri",
+"Armand parle trop fort",
+"Axel drague Armand",
+"Carla drague Sophie",
+"Antoine incompréhensible",
+"Fenêtre gate",
+"Carlaxel se plaignent des chats",
+"Carlaxel tisane gate",
+"Armand n'a pas fait de thé",
+"Carla raconte son rêve",
+"Sophie et sa mosaïque",
+"Smegma mentionné",
+"Feuilles CUC mentionned",
+"Carla blague beauf",
+"Antoine blague beauf",
+"Muscles d'Armand mentioned",
+"Finkelkraut mentionned",
+"Jeanne Calment mentionned",
+"Sandwich triangle",
+"Calmer le Rador",
+"Coda est absent",
+"Y'en a qui bossent demain",
+"Appart d'Antoine",
+"Remix petite fille Afghane",
+"Se Massy le Palaiseau",
+"Carla veut jouer à Gartic Phone",
+"Armand sauve tout le monde",
+"Antoine sauve tout le monde",
+"Armand se prend pour le main character",
+"Axel se prend pour le main character",
+"Armand coincé dans les textures",
+"J'ai pas le droit de jouer",
+"Je peux aller me faire foutre",
+"Antoine sabote",
+"Elie gamètes",
+"Les développeurs ne savent pas faire leur boulot",
+"Axel part tout seul",
+"Axel ne comprend rien",
+"On pourrait être sur Overwatch",
+"Un slur est dit",
+"Blague nazie",
+"Nombreuses injures par Armand",
+"Nombreuses injures par Axel",
+"Carla laissée à l'abandon",
+"Sophie laissée à l'abandon",
+"Problèmes du lobby"
+
+  ];
+
+  const grid = document.getElementById("grid");
+
+  function removeTerms(name) {
+
+    terms = terms.filter(term =>
+      !term.toLowerCase().includes(name.toLowerCase())
+    );
+
+    displayTerms();
+
+    alert(name + " supprimé des termes !");
+  }
+
+  function shuffle(array) {
+
+    for (let i = array.length - 1; i > 0; i--) {
+
+      const j = Math.floor(Math.random() * (i + 1));
+
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+
+    return array;
+  }
+
+  function addTerm() {
+
+    const input =
+      document.getElementById("newTerm");
+
+    const value =
+      input.value.trim();
+
+    if (value === "") return;
+
+    terms.push(value);
+
+    input.value = "";
+
+    displayTerms(); // ⭐ IMPORTANT : mise à jour UI
+
+    alert("Terme ajouté !");
+  }
+
+  function createGrid() {
+
+    grid.innerHTML = "";
+
+    const size =
+      parseInt(document.getElementById("sizeSelect").value);
+
+    grid.style.gridTemplateColumns =
+      `repeat(${size}, 100px)`;
+
+    const totalCells = size * size;
+
+    const shuffled = shuffle([...terms]);
+
+    const selectedTerms =
+      shuffled.slice(0, totalCells);
+
+    selectedTerms.forEach(term => {
+
+      const cell = document.createElement("div");
+
+      cell.classList.add("cell");
+
+      cell.textContent = term;
+
+      cell.addEventListener("click", () => {
+
+        if (gameMode === "play") {
+
+          cell.classList.toggle("checked");
+          return;
+        }
+
+        // MODE ÉDITION
+        if (selectedCell) {
+          selectedCell.classList.remove("selected");
+        }
+
+        selectedCell = cell;
+        cell.classList.add("selected");
+      });
+
+      grid.appendChild(cell);
+    });
+  }
+
+  function createEmptyGrid() {
+
+    grid.innerHTML = "";
+
+    const size =
+      parseInt(document.getElementById("sizeSelect").value);
+
+    grid.style.gridTemplateColumns =
+      `repeat(${size}, 100px)`;
+
+    const totalCells = size * size;
+
+    for (let i = 0; i < totalCells; i++) {
+
+      const cell = document.createElement("div");
+
+      cell.classList.add("cell");
+
+      cell.textContent = "";
+
+      cell.addEventListener("click", () => {
+
+        if (gameMode === "play") {
+
+          cell.classList.toggle("checked");
+          return;
+        }
+
+        if (selectedCell) {
+          selectedCell.classList.remove("selected");
+        }
+
+        selectedCell = cell;
+        cell.classList.add("selected");
+      });
+
+      grid.appendChild(cell);
+    }
+  }
+
+  createGrid();
+
+  function displayTerms() {
+
+    const termsList =
+      document.getElementById("termsList");
+
+    termsList.innerHTML = "";
+
+    terms.forEach(term => {
+
+      const div =
+        document.createElement("div");
+
+      div.classList.add("term-item");
+
+      div.textContent = term;
+
+      div.addEventListener("click", () => {
+
+        if (!selectedCell) {
+          alert("Clique d'abord sur une case !");
+          return;
+        }
+
+        selectedCell.textContent = term;
+
+        selectedCell.classList.remove("selected");
+
+        selectedCell = null;
+      });
+
+      termsList.appendChild(div);
+    });
+  }
+
+displayTerms();
+
+  function startGame() {
+    gameMode = "play";
+    alert("Mode jeu activé !");
+  }
+
+  </script>
+
+</body>
+</html>
